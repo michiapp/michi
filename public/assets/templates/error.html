@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,32 +8,41 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-white text-black min-h-screen flex flex-col font-sans">
+  <body
+    class="bg-black text-gray-100 min-h-screen flex flex-col font-sans selection:bg-white/10 selection:text-white"
+  >
     <!-- Header -->
-    <header class="fixed top-0 left-0 w-full p-4 flex items-center z-50">
-      <a
-        href="/"
-        class="text-2xl font-bold text-black hover:text-gray-700 transition"
-      >
-        michi
+    <header
+      class="fixed top-0 left-0 w-full px-6 py-4 flex items-center justify-between z-50 bg-black/60 backdrop-blur border-b border-white/10"
+    >
+      <a href="/" class="flex items-center gap-2 group">
+        <img
+          src="/favicon.svg"
+          alt="Michi Logo"
+          class="w-6 h-6 transition-transform group-hover:scale-110"
+        />
+        <span
+          class="text-lg font-semibold text-white group-hover:text-gray-300 transition"
+        >
+          michi
+        </span>
       </a>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-4">
       <div
-        class="bg-white border border-black border-l-4 rounded-lg shadow-md p-8 max-w-md w-full text-center"
+        class="bg-zinc-900/80 border border-white/10 rounded-xl shadow-xl shadow-black/40 p-8 max-w-md w-full text-center backdrop-blur"
       >
-        <!-- Error Icon -->
-        <div class="text-6xl mb-4">⚠️</div>
-
         <!-- Error Title -->
-        <h1 class="text-2xl md:text-3xl font-bold mb-3">
-          Something Went Wrong.
+        <h1
+          class="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-white via-gray-300 to-gray-500 bg-clip-text text-transparent"
+        >
+          Something Went Wrong
         </h1>
 
         <!-- Error Message -->
-        <p class="text-gray-600 mb-6 text-sm md:text-base">
+        <p class="text-gray-400 mb-6 text-sm md:text-base leading-relaxed">
           {{ if .error }}
             {{ .error }}
           {{ else }}
@@ -45,11 +54,19 @@
         <!-- Home Link -->
         <a
           href="/"
-          class="inline-block bg-black hover:bg-gray-800 text-white font-semibold px-5 py-2.5 rounded-md transition"
+          class="inline-block bg-white text-black font-semibold px-5 py-2.5 rounded-md hover:bg-gray-200 transition"
         >
           Leave
         </a>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-gray-500">
+      <span class="inline-flex items-center gap-1">
+        <img src="/favicon.svg" alt="Michi Logo" class="w-4 h-4" />
+        <span>michi © 2025</span>
+      </span>
+    </footer>
   </body>
 </html>

@@ -16,7 +16,7 @@ builds:
       - arm64 
     ldflags:
       - -s -w
-      - -X github.com/OrbitalJin/michi/internal.Version={{ .Version }}{{ if .Commit }}-{{ .Commit }}{{ end }}
+      - -X github.com/OrbitalJin/michi/internal.Version={{ .Version }}
 
 archives:
   - id: default

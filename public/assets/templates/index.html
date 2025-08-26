@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,49 +8,65 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-white text-black min-h-screen flex flex-col font-sans">
+  <body
+    class="bg-black text-gray-100 min-h-screen flex flex-col font-sans selection:bg-white/10 selection:text-white"
+  >
     <!-- Header -->
-    <header class="fixed top-0 left-0 w-full p-4 flex items-center z-50">
-      <a
-        href="https://michi.run/"
-        class="text-2xl font-bold text-black hover:text-gray-700 transition"
-      >
-        michi
+    <header
+      class="fixed top-0 left-0 w-full px-6 py-4 flex items-center justify-between z-50 bg-black/60 backdrop-blur border-b border-white/10"
+    >
+      <a href="https://michi.run/" class="flex items-center gap-2 group">
+        <!-- Favicon as logo -->
+        <img
+          src="/favicon.svg"
+          alt="Michi Logo"
+          class="w-6 h-6 transition-transform group-hover:scale-110"
+        />
+        <span
+          class="text-lg font-semibold text-white group-hover:text-gray-300 transition"
+        >
+          michi
+        </span>
       </a>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-4">
       <div class="w-full max-w-xl text-center">
-        <h1 class="text-3xl md:text-4xl font-bold mb-4">
+        <!-- Hero Title -->
+        <h1
+          class="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-white via-gray-300 to-gray-500 bg-clip-text text-transparent"
+        >
           Where do we wander today?
         </h1>
-        <p class="text-gray-600 italic mb-8">
+
+        <!-- Subtitle -->
+        <p class="text-gray-400 mb-10">
           Your private, lightning‑fast search multiplexer.
         </p>
 
         <!-- Search Box -->
         <form action="/search" method="GET">
           <div
-            class="flex items-center bg-white border border-black border-l-4 rounded-full px-4 py-2 shadow-md 
-                   focus-within:shadow-lg focus-within:-translate-y-0.5 transition"
+            class="flex items-center bg-zinc-900 border border-white/10 rounded-full px-4 py-2 shadow-lg shadow-black/40 
+                   focus-within:ring-2 focus-within:ring-white/20 transition"
           >
             <input
               type="text"
               name="q"
               placeholder="Ask me anything..."
               required
-              class="flex-1 bg-transparent text-black placeholder-gray-500 focus:outline-none px-2 text-lg"
+              class="flex-1 bg-transparent text-white placeholder-gray-500 focus:outline-none px-2 text-lg"
             />
             <button
               type="submit"
               aria-label="Search"
-              class="flex items-center justify-center w-10 h-10 rounded-full bg-black hover:bg-gray-800 transition"
+              class="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black hover:bg-gray-200 transition"
             >
               <!-- Search Icon -->
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 text-white"
+                class="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -67,5 +83,13 @@
         </form>
       </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center text-xs text-gray-500">
+      <span class="inline-flex items-center gap-1">
+        <img src="/favicon.svg" alt="Michi Logo" class="w-4 h-4" />
+        <span>michi © 2025</span>
+      </span>
+    </footer>
   </body>
 </html>
