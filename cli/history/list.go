@@ -23,6 +23,7 @@ func list(service service.HistoryServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "list",
 		Usage: "list history",
+		Aliases: []string{"l"},
 		Flags: []v2.Flag{
 			allFlag,
 			limitFlag,

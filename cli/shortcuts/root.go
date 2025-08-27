@@ -11,8 +11,9 @@ import (
 
 func Root(service service.ShortcutServiceIface) *v2.Command {
 	return &v2.Command{
-		Name:  "shortcuts",
-		Usage: "to manage shortcuts",
+		Name:    "shortcuts",
+		Usage:   "to manage shortcuts",
+		Aliases: []string{"sc"},
 		Subcommands: []*v2.Command{
 			list(service),
 			add(service),

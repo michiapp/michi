@@ -12,6 +12,7 @@ func list(service service.SessionServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "list",
 		Usage: "list sessions",
+		Aliases: []string{"l"},
 		Action: func(ctx *v2.Context) error {
 			sessions, err := service.GetAll()
 			if err != nil {

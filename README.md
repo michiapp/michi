@@ -112,12 +112,15 @@ curl -fsSL https://michi.run/uninstall.sh | sh
 ---
 
 ## Todo
+- [ ] Fix db changes not reflecting immediately
+- [ ] Fix macos installer
 - [ ] michi commands i.e. :michi foo
 - [ ] Migrate to sqlc
 - [ ] Analytics
 - [ ] Firewall rules
 - [ ] configurable redirects to avoid certain websites
 - [ ] list down average reponse time in help command
+- [x] add shorthands for the cli commands
 - [x] Add support for arm64 & darwin
 - [x] serve default search page on / & forward to /search
 - [x] CI/CD crossplatform build pipeline

@@ -11,6 +11,7 @@ func delete(service service.SessionServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "delete",
 		Usage: "delete a session",
+		Aliases: []string{"d"},
 		Action: func(c *v2.Context) error {
 			sessions, err := service.GetAll()
 

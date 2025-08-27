@@ -24,6 +24,7 @@ func add(service service.ShortcutServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "add",
 		Usage: "add a shortcut",
+		Aliases: []string{"a"},
 		Flags: []v2.Flag{
 			aliasFlag,
 			urlFlag,

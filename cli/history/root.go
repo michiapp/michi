@@ -11,8 +11,9 @@ import (
 
 func Root(service service.HistoryServiceIface) *v2.Command {
 	return &v2.Command{
-		Name:  "history",
-		Usage: "to manage history",
+		Name:    "history",
+		Usage:   "to manage history",
+		Aliases: []string{"hs"},
 		Subcommands: []*v2.Command{
 			list(service),
 			delete(service),

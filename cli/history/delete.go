@@ -16,6 +16,7 @@ func delete(service service.HistoryServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "delete",
 		Usage: "delete an entry",
+		Aliases: []string{"d"},
 		Flags: []v2.Flag{
 			lastFlag,
 		},

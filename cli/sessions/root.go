@@ -14,9 +14,10 @@ func Root(service service.SessionServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "sessions",
 		Usage: "Manage sessions",
+		Aliases: []string{"sesh"},
 		Subcommands: []*v2.Command{
 			list(service),
-			create(service),
+			add(service),
 			delete(service),
 		},
 	}

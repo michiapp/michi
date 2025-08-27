@@ -12,6 +12,7 @@ func list(service service.ShortcutServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "list",
 		Usage: "to list shortcuts",
+		Aliases: []string{"l"},
 		Action: func(c *v2.Context) error {
 			shortcuts, err := service.GetAll()
 

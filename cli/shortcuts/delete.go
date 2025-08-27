@@ -11,6 +11,7 @@ func delete(service service.ShortcutServiceIface) *v2.Command {
 	return &v2.Command{
 		Name:  "delete",
 		Usage: "delete a shortcut",
+		Aliases: []string{"d"},
 		Action: func(c *v2.Context) error {
 
 			shortcuts, err := service.GetAll()

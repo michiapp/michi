@@ -8,7 +8,7 @@ import (
 	v2 "github.com/urfave/cli/v2"
 )
 
-func create(service service.SessionServiceIface) *v2.Command {
+func add(service service.SessionServiceIface) *v2.Command {
 	aliasFlag := &v2.StringFlag{
 		Name:     "alias",
 		Usage:    "alias for the session",
@@ -22,8 +22,9 @@ func create(service service.SessionServiceIface) *v2.Command {
 	}
 
 	return &v2.Command{
-		Name:  "create",
-		Usage: "create a new session",
+		Name:  "add",
+		Usage: "add a new session",
+		Aliases: []string{"a"},
 		Flags: []v2.Flag{
 			aliasFlag,
 			urlFlag,
