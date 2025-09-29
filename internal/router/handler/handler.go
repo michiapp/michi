@@ -3,16 +3,16 @@ package handler
 import (
 	"net/http"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/parser"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	"github.com/OrbitalJin/michi/public"
 	"github.com/gin-gonic/gin"
 )
 
 type HandlerIface interface {
 	Root(ctx *gin.Context)
-	completeSearchRequest(ctx *gin.Context, redirectURL string, result *parser.Result, provider *models.SearchProvider)
+	completeSearchRequest(ctx *gin.Context, redirectURL string, result *parser.Result, provider sqlc.SearchProvider)
 	handleBang(ctx *gin.Context, action *parser.QueryAction)
 	handleShortcut(ctx *gin.Context, action *parser.QueryAction)
 	handleSession(ctx *gin.Context, action *parser.QueryAction)
@@ -40,12 +40,12 @@ func NewHandler(
 }
 
 func (h *Handler) Favicon(ctx *gin.Context) {
-		data, err := public.Content.ReadFile("assets/favicon.svg")
-		if err != nil {
-			ctx.Status(http.StatusNotFound)
-			return
-		}
-		ctx.Data(http.StatusOK, "image/svg+xml", data)
+	data, err := public.Content.ReadFile("assets/favicon.svg")
+	if err != nil {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+	ctx.Data(http.StatusOK, "image/svg+xml", data)
 }
 
 func (h *Handler) Index(ctx *gin.Context) {
@@ -70,12 +70,9 @@ func (h *Handler) completeSearchRequest(
 	ctx *gin.Context,
 	redirectURL string,
 	result *parser.Result,
-	provider *models.SearchProvider,
+	provider sqlc.SearchProvider,
 ) {
 
 	ctx.Redirect(http.StatusFound, redirectURL)
-
-	if h.services.GetProvidersService().GetCfg().ShouldKeepTrack() {
-		go h.logSearchHistoryAsync(result, provider)
-	}
+	go h.logSearchHistoryAsync(ctx, result, provider)
 }

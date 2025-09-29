@@ -1,27 +1,28 @@
 package bangs
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	"github.com/urfave/cli/v2"
 )
 
-func Root(service service.SPServiceIface) *cli.Command {
+func Root(ctx context.Context, service *service.SPService) *cli.Command {
 	return &cli.Command{
 		Name:  "bangs",
 		Usage: "to manage bangs",
 		Subcommands: []*cli.Command{
-			list(service),
-			delete(service),
-			create(service),
+			list(ctx, service),
+			delete(ctx, service),
+			create(ctx, service),
 		},
 	}
 }
 
-func fzf(bangs []models.SearchProvider, prompt string) *models.SearchProvider {
+func fzf(bangs []sqlc.SearchProvider, prompt string) *sqlc.SearchProvider {
 	index, err := fuzzy.FindMulti(
 		bangs,
 		func(i int) string {

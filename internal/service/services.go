@@ -1,38 +1,38 @@
 package service
 
 type Services struct {
-	providersService SPServiceIface
-	historyService   HistoryServiceIface
-	sessionService   SessionServiceIface
-	shortcutService  ShortcutServiceIface
+	providerService *SPService
+	historyService  *HistoryService
+	sessionService  *SessionService
+	shortcutService *ShortcutService
 }
 
 func NewServices(
-	providersService SPServiceIface,
-	historyService HistoryServiceIface,
-	sessionService SessionServiceIface,
-	shortcutService ShortcutServiceIface,
+	providersService *SPService,
+	historyService *HistoryService,
+	sessionService *SessionService,
+	shortcutService *ShortcutService,
 ) *Services {
 	return &Services{
-		providersService: providersService,
-		historyService:   historyService,
-		sessionService:   sessionService,
-		shortcutService:  shortcutService,
+		providerService: providersService,
+		historyService:  historyService,
+		sessionService:  sessionService,
+		shortcutService: shortcutService,
 	}
 }
 
-func (s *Services) GetProvidersService() SPServiceIface {
-	return s.providersService
+func (service *Services) GetProvidersService() *SPService {
+	return service.providerService
 }
 
-func (s *Services) GetHistoryService() HistoryServiceIface {
-	return s.historyService
+func (service *Services) GetHistoryService() *HistoryService {
+	return service.historyService
 }
 
-func (s *Services) GetSessionService() SessionServiceIface {
-	return s.sessionService
+func (service *Services) GetSessionService() *SessionService {
+	return service.sessionService
 }
 
-func (s *Services) GetShortcutService() ShortcutServiceIface {
-	return s.shortcutService
+func (service *Services) GetShortcutService() *ShortcutService {
+	return service.shortcutService
 }

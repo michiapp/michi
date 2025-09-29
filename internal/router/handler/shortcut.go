@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/OrbitalJin/michi/internal/parser"
@@ -25,7 +24,7 @@ func (h *Handler) handleShortcut(ctx *gin.Context, action *parser.QueryAction) {
 
 	alias := result.Matches[0]
 
-	shortcut, err := h.services.GetShortcutService().GetFromAlias(alias)
+	shortcut, err := h.services.GetShortcutService().GetFromAlias(ctx, alias)
 
 	if err != nil {
 		respondWithError(
@@ -39,11 +38,5 @@ func (h *Handler) handleShortcut(ctx *gin.Context, action *parser.QueryAction) {
 		return
 	}
 
-	if shortcut == nil {
-		log.Printf("handleShortcut: Shortcut not found for alias '%s', falling back to default search.", alias)
-		h.handleDefaultSearch(ctx, action)
-		return
-	}
-
-	ctx.Redirect(http.StatusFound, shortcut.URL)
+	ctx.Redirect(http.StatusFound, shortcut.Url)
 }

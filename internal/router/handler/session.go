@@ -24,7 +24,7 @@ func (h *Handler) handleSession(ctx *gin.Context, action *parser.QueryAction) {
 
 	alias := result.Matches[0]
 
-	session, err := h.services.GetSessionService().GetFromAlias(alias)
+	_, err := h.services.GetSessionService().GetFromAlias(ctx, alias)
 
 	if err != nil {
 		respondWithError(
@@ -38,30 +38,25 @@ func (h *Handler) handleSession(ctx *gin.Context, action *parser.QueryAction) {
 		return
 	}
 
-	if session == nil {
-		h.handleDefaultSearch(ctx, action)
-		return
-	}
+	// urls := session.URLs
 
-	urls := session.URLs
+	// if len(urls) == 0 {
+	// 	respondWithError(
+	// 		ctx,
+	// 		http.StatusInternalServerError,
+	// 		"handleSession: Session for alias '%s' has no URLs",
+	// 		"Failed to retrieve session. Please try again later.",
+	// 		nil,
+	// 		alias,
+	// 	)
+	// 	return
+	// }
 
-	if len(urls) == 0 {
-		respondWithError(
-			ctx,
-			http.StatusInternalServerError,
-			"handleSession: Session for alias '%s' has no URLs",
-			"Failed to retrieve session. Please try again later.",
-			nil,
-			alias,
-		)
-		return
-	}
-
-	ctx.HTML(
-		http.StatusOK,
-		"session_open.html",
-		gin.H{
-			"URLs": urls,
-		},
-	)
+	// ctx.HTML(
+	// 	http.StatusOK,
+	// 	"session_open.html",
+	// 	gin.H{
+	// 		"URLs": urls,
+	// 	},
+	// )
 }

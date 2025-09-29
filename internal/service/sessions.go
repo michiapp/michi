@@ -1,75 +1,63 @@
 package service
 
 import (
+	"context"
+
 	"github.com/OrbitalJin/michi/internal/cache"
-	"github.com/OrbitalJin/michi/internal/models"
-	"github.com/OrbitalJin/michi/internal/repository"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
-type SessionServiceIface interface {
-	Insert(session *models.Session) error
-	GetFromAlias(alias string) (*models.Session, error)
-	GetAll() ([]models.Session, error)
-	Update(session *models.Session) error
-	Delete(id int) error
-	DeleteFromAlias(alias string) error
-}
-
 type SessionService struct {
-	repo  repository.SessionsRepoIface
-	cache *cache.Cache[string, *models.Session]
+	q     *sqlc.Queries
+	cache *cache.Cache[string, sqlc.Session]
 }
 
-func NewSessionService(repo repository.SessionsRepoIface) *SessionService {
+func NewSessionService(q *sqlc.Queries) *SessionService {
 	return &SessionService{
-		repo:  repo,
-		cache: cache.New[string, *models.Session](),
+		q:     q,
+		cache: cache.New[string, sqlc.Session](),
 	}
 }
 
-func (s *SessionService) Insert(session *models.Session) error {
+func (service *SessionService) Insert(ctx context.Context, alias string, urls []string) error {
 
-	err := s.repo.Insert(session)
+	session, err := service.q.InsertSession(ctx, alias)
 
 	if err != nil {
 		return err
 	}
 
-	s.cache.Store(session.Alias, session)
+	service.cache.Store(session.Alias, session)
 
 	return nil
 }
 
-func (s *SessionService) GetFromAlias(alias string) (*models.Session, error) {
-	shortcut, ok := s.cache.Load(alias)
+func (service *SessionService) GetFromAlias(ctx context.Context, alias string) (sqlc.Session, error) {
+	shortcut, ok := service.cache.Load(alias)
 
 	if ok {
 		return shortcut, nil
 	}
 
-	shortcut, err := s.repo.GetFromAlias(alias)
+	shortcut, err := service.q.GetSessionByAlias(ctx, alias)
 
 	if err != nil {
-		return nil, err
+		return sqlc.Session{}, err
 	}
 
-	s.cache.Store(alias, shortcut)
+	service.cache.Store(alias, shortcut)
 
 	return shortcut, nil
 }
 
-func (s *SessionService) GetAll() ([]models.Session, error) {
-	return s.repo.GetAll()
+func (service *SessionService) GetAll(ctx context.Context) ([]sqlc.Session, error) {
+	return service.q.ListSessions(ctx)
 }
 
-func (s *SessionService) Update(session *models.Session) error {
-	return s.repo.Update(session)
+func (service *SessionService) Delete(ctx context.Context, id int64) error {
+	return service.q.DeleteSession(ctx, id)
 }
 
-func (s *SessionService) Delete(id int) error {
-	return s.repo.Delete(id)
-}
-
-func (s *SessionService) DeleteFromAlias(alias string) error {
-	return s.repo.DeleteFromAlias(alias)
+func (service *SessionService) DeleteFromAlias(ctx context.Context, alias string) error {
+	return service.q.DeleteSessionByAlias(ctx, alias)
 }

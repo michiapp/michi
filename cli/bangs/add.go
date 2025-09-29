@@ -1,14 +1,15 @@
 package bangs
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func create(service service.SPServiceIface) *v2.Command {
+func create(ctx context.Context, service *service.SPService) *v2.Command {
 
 	siteNameFlag := &v2.StringFlag{
 		Name:     "site-name",
@@ -72,22 +73,22 @@ func create(service service.SPServiceIface) *v2.Command {
 			domain := c.String(domainFlag.Name)
 			url := c.String(urlFlag.Name)
 
-			newProvider := models.SearchProvider{
+			params := sqlc.InsertProviderParams{
 				SiteName:    siteName,
 				Tag:         tag,
 				Category:    category,
 				Subcategory: subcategory,
 				Domain:      domain,
-				URL:         url,
+				Url:         url,
 			}
 
-			err := service.Insert(newProvider)
+			err := service.Insert(ctx, params)
 
 			if err != nil {
 				return fmt.Errorf("failed to add search provider: %w", err)
 			}
 
-			fmt.Printf("Successfully added search provider '%s' (tag: '%s')\n", newProvider.SiteName, newProvider.Tag)
+			fmt.Printf("Successfully added search provider '%s' (tag: '%s')\n", params.SiteName, params.Tag)
 			return nil
 		},
 	}

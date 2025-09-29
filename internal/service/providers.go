@@ -1,74 +1,59 @@
 package service
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"net/url"
 	"strings"
 
 	"github.com/OrbitalJin/michi/internal/cache"
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/parser"
-	"github.com/OrbitalJin/michi/internal/repository"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
-type SPServiceIface interface {
-	Insert(p models.SearchProvider) error
-	GetByTag(t string) (*models.SearchProvider, error)
-	GetAll() ([]models.SearchProvider, error)
-	Collect(v string) ([]models.SearchProvider, error)
-	CollectAndRank(v string) (*parser.Result, *models.SearchProvider, error)
-	Rank(result *parser.Result) *models.SearchProvider
-	Resolve(query string, provider *models.SearchProvider) (*models.SearchProvider, *string, error)
-	ResolveAndFallback(query string, provider *models.SearchProvider) (*models.SearchProvider, *string, error)
-	ResolveWithFallback(query string) (*models.SearchProvider, *string, error)
-	Delete(id int) error
-	GetCfg() *Config
-}
-
 type SPService struct {
-	repo   repository.ProviderRepoIface
-	parser *parser.Parser
-	cache  *cache.Cache[string, *models.SearchProvider]
-	config *Config
+	q               *sqlc.Queries
+	parser          *parser.Parser
+	defaultProvider string
+	cache           *cache.Cache[string, sqlc.SearchProvider]
 }
 
 func NewSearchProviderService(
 	p *parser.Parser,
-	r repository.ProviderRepoIface,
-	config *Config,
+	q *sqlc.Queries,
+	defaultProvider string,
 ) *SPService {
 
 	return &SPService{
-		parser: p,
-		repo:   r,
-		cache:  cache.New[string, *models.SearchProvider](),
-		config: config,
+		parser:          p,
+		q:               q,
+		defaultProvider: defaultProvider,
+		cache:           cache.New[string, sqlc.SearchProvider](),
 	}
 }
 
-func (service *SPService) Insert(p models.SearchProvider) error {
-	p.Rank = 0
-	return service.repo.Insert(p)
+func (s *SPService) Insert(ctx context.Context, params sqlc.InsertProviderParams) error {
+	params.Rank = 0
+	return s.q.InsertProvider(ctx, params)
 }
 
-func (service *SPService) GetByTag(t string) (*models.SearchProvider, error) {
+func (service *SPService) GetByTag(ctx context.Context, t string) (sqlc.SearchProvider, error) {
 	provider, ok := service.cache.Load(t)
 
 	if ok {
 		return provider, nil
 	}
 
-	provider, err := service.repo.GetByTag(t)
+	provider, err := service.q.GetProviderByTag(ctx, t)
 
-	if err == nil && provider != nil {
+	if err == nil {
 		service.cache.Store(t, provider)
 	}
 
 	return provider, err
 }
 
-func (service *SPService) Collect(v string) ([]models.SearchProvider, error) {
+func (service *SPService) Collect(ctx context.Context, v string) ([]sqlc.SearchProvider, error) {
 	result, err := service.parser.Collect(v)
 
 	if err != nil {
@@ -79,53 +64,53 @@ func (service *SPService) Collect(v string) ([]models.SearchProvider, error) {
 		return nil, nil
 	}
 
-	var sps []models.SearchProvider
+	var sps []sqlc.SearchProvider
 
 	for _, tag := range result.Matches {
-		p, err := service.GetByTag(tag)
+		p, err := service.GetByTag(ctx, tag)
 
-		if err != nil || p == nil {
+		if err != nil {
 			continue
 		}
 
-		sps = append(sps, *p)
+		sps = append(sps, p)
 	}
 
 	return sps, nil
 }
 
-func (service *SPService) CollectAndRank(v string) (
+func (service *SPService) CollectAndRank(ctx context.Context, v string) (
 	*parser.Result,
-	*models.SearchProvider,
+	sqlc.SearchProvider,
 	error,
 ) {
 	result, err := service.parser.Collect(v)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, sqlc.SearchProvider{}, err
 	}
 
 	if len(result.Matches) == 0 {
-		return result, nil, nil
+		return result, sqlc.SearchProvider{}, nil
 	}
 
-	best := service.Rank(result)
+	best := service.Rank(ctx, result)
 
 	return result, best, nil
 }
 
-func (service *SPService) Rank(result *parser.Result) *models.SearchProvider {
+func (service *SPService) Rank(ctx context.Context, result *parser.Result) sqlc.SearchProvider {
 	if result == nil {
-		return nil
+		return sqlc.SearchProvider{}
 	}
 
-	var best *models.SearchProvider
-	bestRank := -1
+	var best sqlc.SearchProvider
+	var bestRank int64 = -1
 
 	for _, tag := range result.Matches {
-		p, err := service.GetByTag(tag)
+		p, err := service.GetByTag(ctx, tag)
 
-		if err != nil || p == nil {
+		if err != nil {
 			continue
 		}
 
@@ -140,56 +125,29 @@ func (service *SPService) Rank(result *parser.Result) *models.SearchProvider {
 
 func (service *SPService) Resolve(
 	query string,
-	provider *models.SearchProvider,
-) (*models.SearchProvider, *string, error) {
-
-	if provider == nil {
-		return nil, nil, fmt.Errorf("provider cannot be nil.")
-	}
+	provider sqlc.SearchProvider,
+) (sqlc.SearchProvider, *string, error) {
 
 	encoded := url.QueryEscape(query)
-	url := strings.Replace(provider.URL, "{{{s}}}", encoded, 1)
+	url := strings.Replace(provider.Url, "{{{s}}}", encoded, 1)
 	return provider, &url, nil
 }
 
-func (service *SPService) ResolveAndFallback(
-	query string,
-	provider *models.SearchProvider,
-) (*models.SearchProvider, *string, error) {
-
-	if provider != nil {
-		return service.Resolve(query, provider)
-	}
-
-	p, err := service.GetByTag(service.config.defaultProvider)
+func (service *SPService) ResolveWithFallback(ctx context.Context, query string) (sqlc.SearchProvider, *string, error) {
+	p, err := service.GetByTag(ctx, service.defaultProvider)
 
 	if err != nil {
 		log.Println("no default provider available.")
-		return nil, nil, err
+		return sqlc.SearchProvider{}, nil, err
 	}
 
 	return service.Resolve(query, p)
 }
 
-func (service *SPService) ResolveWithFallback(query string) (*models.SearchProvider, *string, error) {
-	p, err := service.GetByTag(service.config.defaultProvider)
-
-	if err != nil {
-		log.Println("no default provider available.")
-		return nil, nil, err
-	}
-
-	return service.Resolve(query, p)
+func (service *SPService) GetAll(ctx context.Context) ([]sqlc.SearchProvider, error) {
+	return service.q.ListProviders(ctx)
 }
 
-func (service *SPService) GetCfg() *Config {
-	return service.config
-}
-
-func (service *SPService) GetAll() ([]models.SearchProvider, error) {
-	return service.repo.GetAll()
-}
-
-func (service *SPService) Delete(id int) error {
-	return service.repo.Delete(id)
+func (service *SPService) Delete(ctx context.Context, id int64) error {
+	return service.q.DeleteProvider(ctx, id)
 }

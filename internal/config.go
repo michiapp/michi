@@ -86,7 +86,7 @@ func LoadConfig(configFilePath string) (*Config, error) {
 	return cfg, nil
 }
 
-func EnsureConfigDir() (string, error) {
+func SetupConfigDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
@@ -98,8 +98,8 @@ func EnsureConfigDir() (string, error) {
 	return configDir, nil
 }
 
-func EnsureHydrationFile() error {
-	configDir, err := EnsureConfigDir()
+func SetupHydrationFile() error {
+	configDir, err := SetupConfigDir()
 	if err != nil {
 		return err
 	}

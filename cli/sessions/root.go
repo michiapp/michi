@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	v2 "github.com/urfave/cli/v2"
@@ -12,8 +11,8 @@ import (
 
 func Root(service service.SessionServiceIface) *v2.Command {
 	return &v2.Command{
-		Name:  "sessions",
-		Usage: "Manage sessions",
+		Name:    "sessions",
+		Usage:   "Manage sessions",
 		Aliases: []string{"sesh"},
 		Subcommands: []*v2.Command{
 			list(service),

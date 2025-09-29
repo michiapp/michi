@@ -1,13 +1,16 @@
 package server
 
 import (
+	"database/sql"
 	"fmt"
 
+	"github.com/OrbitalJin/michi/internal"
 	"github.com/OrbitalJin/michi/internal/parser"
 	"github.com/OrbitalJin/michi/internal/router"
 	"github.com/OrbitalJin/michi/internal/router/handler"
 	"github.com/OrbitalJin/michi/internal/service"
-	"github.com/OrbitalJin/michi/internal/store"
+	"github.com/OrbitalJin/michi/internal/sqlc"
+	_ "modernc.org/sqlite"
 )
 
 type Server struct {
@@ -15,40 +18,36 @@ type Server struct {
 	handler     handler.HandlerIface
 	router      router.RouterIface
 	services    *service.Services
-	store       *store.Store
-	config      *Config
+	queries     *sqlc.Queries
+	config      *internal.Config
+	conn        *sql.DB
 }
 
-func New(config *Config) (*Server, error) {
-	store, err := store.New(config.storeCfg)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to access the store: %w", err)
-	}
-
-	if err = store.Migrate(); err != nil {
-		return nil, fmt.Errorf("failed to conduct database migration: %w", err)
-	}
+func New(
+	conn *sql.DB,
+	config *internal.Config,
+	serviceCgf *service.Config,
+	bangParserCfg,
+	shortcutParserCfg,
+	seshParserCfg *parser.Config,
+) (*Server, error) {
+	q := sqlc.New(conn)
 
 	qp, err := parser.NewQueryParser(
-		config.bangParserCfg,
-		config.shortcutParserCfg,
-		config.seshParserCfg,
+		bangParserCfg,
+		shortcutParserCfg,
+		seshParserCfg,
 	)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create parser: %w", err)
 	}
 
-	psvc := service.NewSearchProviderService(
-		qp.BangParser(),
-		store.SearchProviders,
-		config.serviceCgf,
-	)
+	psvc := service.NewSearchProviderService(qp.BangParser(), q, config.Service.DefaultProvider)
 
-	hsvc := service.NewHistoryService(store.History)
-	scsvc := service.NewShortcutService(store.Shortcuts)
-	seshsvc := service.NewSessionService(store.Sessions)
+	hsvc := service.NewHistoryService(q)
+	scsvc := service.NewShortcutService(q)
+	seshsvc := service.NewSessionService(q)
 	services := service.NewServices(psvc, hsvc, seshsvc, scsvc)
 
 	handler := handler.NewHandler(qp, services, "q")
@@ -63,7 +62,7 @@ func New(config *Config) (*Server, error) {
 
 	return &Server{
 		queryParser: qp,
-		store:       store,
+		queries:     q,
 		services:    services,
 		router:      router,
 		handler:     handler,
@@ -76,9 +75,9 @@ func (server *Server) GetServices() *service.Services {
 }
 
 func (server *Server) Serve() error {
-	return server.router.Serve(server.config.Port)
+	return server.router.Serve(server.config.Server.Port)
 }
 
-func (server *Server) GetConfig() *Config {
+func (server *Server) GetConfig() *internal.Config {
 	return server.config
 }

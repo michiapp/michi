@@ -1,18 +1,19 @@
 package bangs
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func delete(service service.SPServiceIface) *v2.Command {
+func delete(ctx context.Context, service *service.SPService) *v2.Command {
 	return &v2.Command{
 		Name:  "delete",
 		Usage: "delete a bang",
-		Action: func(ctx *v2.Context) error {
-			bangs, err := service.GetAll()
+		Action: func(_ *v2.Context) error {
+			bangs, err := service.GetAll(ctx)
 
 			if err != nil {
 				return err
@@ -25,7 +26,7 @@ func delete(service service.SPServiceIface) *v2.Command {
 				return nil
 			}
 
-			err = service.Delete(selected.ID)
+			err = service.Delete(ctx, selected.ID)
 
 			if err != nil {
 				return err

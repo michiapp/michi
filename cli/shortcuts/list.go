@@ -1,6 +1,7 @@
 package shortcuts
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
@@ -8,13 +9,13 @@ import (
 	v2 "github.com/urfave/cli/v2"
 )
 
-func list(service service.ShortcutServiceIface) *v2.Command {
+func list(ctx context.Context, service *service.ShortcutService) *v2.Command {
 	return &v2.Command{
-		Name:  "list",
-		Usage: "to list shortcuts",
+		Name:    "list",
+		Usage:   "to list shortcuts",
 		Aliases: []string{"l"},
 		Action: func(c *v2.Context) error {
-			shortcuts, err := service.GetAll()
+			shortcuts, err := service.GetAll(ctx)
 
 			if err != nil {
 				return err
@@ -27,7 +28,7 @@ func list(service service.ShortcutServiceIface) *v2.Command {
 				return nil
 			}
 
-			clipboard.WriteAll(selected.URL)
+			clipboard.WriteAll(selected.Url)
 
 			return nil
 		},

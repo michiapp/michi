@@ -1,14 +1,15 @@
 package shortcuts
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func add(service service.ShortcutServiceIface) *v2.Command {
+func add(ctx context.Context, service *service.ShortcutService) *v2.Command {
 	aliasFlag := &v2.StringFlag{
 		Name:     "alias",
 		Usage:    "alias for the shortcut",
@@ -22,8 +23,8 @@ func add(service service.ShortcutServiceIface) *v2.Command {
 	}
 
 	return &v2.Command{
-		Name:  "add",
-		Usage: "add a shortcut",
+		Name:    "add",
+		Usage:   "add a shortcut",
 		Aliases: []string{"a"},
 		Flags: []v2.Flag{
 			aliasFlag,
@@ -33,9 +34,9 @@ func add(service service.ShortcutServiceIface) *v2.Command {
 			alias := c.String("alias")
 			url := c.String("url")
 
-			err := service.Insert(&models.Shortcut{
+			err := service.Insert(ctx, sqlc.InsertShortcutParams{
 				Alias: alias,
-				URL:   url,
+				Url:   url,
 			})
 
 			if err != nil {

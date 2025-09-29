@@ -1,16 +1,16 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/parser"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
-func (h *Handler) logSearchHistoryAsync(result *parser.Result, provider *models.SearchProvider) {
-	if result == nil || provider == nil {
+func (h *Handler) logSearchHistoryAsync(ctx context.Context, result *parser.Result, provider sqlc.SearchProvider) {
+	if result == nil {
 		log.Printf(
 			"logSearchHistoryAsync: Skipping history log due to missing result or provider. Result: %+v, Provider: %+v",
 			result,
@@ -19,14 +19,13 @@ func (h *Handler) logSearchHistoryAsync(result *parser.Result, provider *models.
 		return
 	}
 
-	entry := &models.SearchHistoryEvent{
+	entry := sqlc.History{
 		Query:       result.Query,
 		ProviderID:  provider.ID,
 		ProviderTag: provider.Tag,
-		Timestamp:   time.Now(),
 	}
 
-	if err := h.services.GetHistoryService().Insert(entry); err != nil {
+	if err := h.services.GetHistoryService().Insert(ctx, entry); err != nil {
 		log.Printf(
 			"failed to insert search history entry for query '%s': %v",
 			entry.Query,

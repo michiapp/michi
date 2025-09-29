@@ -23,18 +23,15 @@ func (h *Handler) handleBang(ctx *gin.Context, action *parser.QueryAction) {
 		return
 	}
 
-	best := service.Rank(result)
+	best := service.Rank(ctx, result)
 
-	provider, redirect, err := service.ResolveAndFallback(
+	provider, redirect, err := service.Resolve(
 		result.Query,
 		best,
 	)
 
 	if err != nil || redirect == nil {
 		providerTag := "N/A"
-		if provider != nil {
-			providerTag = provider.Tag
-		}
 		respondWithError(
 			ctx,
 			http.StatusInternalServerError,

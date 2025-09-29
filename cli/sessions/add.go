@@ -3,7 +3,6 @@ package sessions
 import (
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
 	v2 "github.com/urfave/cli/v2"
 )
@@ -22,8 +21,8 @@ func add(service service.SessionServiceIface) *v2.Command {
 	}
 
 	return &v2.Command{
-		Name:  "add",
-		Usage: "add a new session",
+		Name:    "add",
+		Usage:   "add a new session",
 		Aliases: []string{"a"},
 		Flags: []v2.Flag{
 			aliasFlag,

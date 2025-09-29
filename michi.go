@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"embed"
 	"fmt"
 	"log"
 	"os"
@@ -11,11 +13,22 @@ import (
 	"github.com/OrbitalJin/michi/internal/parser"
 	"github.com/OrbitalJin/michi/internal/server"
 	"github.com/OrbitalJin/michi/internal/service"
-	"github.com/OrbitalJin/michi/internal/store"
 	"github.com/gin-gonic/gin"
+	"github.com/pressly/goose/v3"
+	_ "modernc.org/sqlite"
 )
 
-func main() {
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
+func migrate(db *sql.DB) error {
+	goose.SetBaseFS(embedMigrations)
+	goose.SetDialect(string(goose.DialectSQLite3))
+
+	return goose.Up(db, "migrations")
+}
+
+func configureEnv() *internal.Config {
 	isDebug := os.Getenv("ENV") == "dev"
 
 	if isDebug {
@@ -25,7 +38,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	configDir, err := internal.EnsureConfigDir()
+	configDir, err := internal.SetupConfigDir()
 	if err != nil {
 		log.Fatalf("Failed to prepare configuration directory: %v", err)
 	}
@@ -36,35 +49,44 @@ func main() {
 		log.Fatalf("Failed to load application configuration: %v", err)
 	}
 
-	if err = internal.EnsureHydrationFile(); err != nil {
+	if err = internal.SetupHydrationFile(); err != nil {
 		log.Fatalf("Failed to hydrate database: %v", err)
 	}
 
+	return config
+}
+
+func main() {
+	config := configureEnv()
 	bangParserConfig := parser.NewConfig(config.Parser.BangPrefix)
 	shortcutParserConfig := parser.NewConfig(config.Parser.ShortcutPrefix)
 	sessionParserConfig := parser.NewConfig(config.Parser.SessionPrefix)
-
-	storeConfig := store.NewConfig(config.DBPath)
 	serviceConfig := service.NewConfig(config.Service.KeepTrack, config.Service.DefaultProvider)
 
-	serverConfig := server.NewConfig(
-		config.Server.Port,
-		config.PidFile,
-		config.LogFile,
+	conn, err := sql.Open("sqlite", config.DBPath)
+	if err != nil {
+		log.Fatalf("Failed to open database connection: %v", err)
+	}
+	defer conn.Close()
+
+	if err := migrate(conn); err != nil {
+		log.Fatal("Failed to run migrations:", err)
+	}
+
+	michi, err := server.New(
+		conn,
+		config,
+		serviceConfig,
 		bangParserConfig,
 		shortcutParserConfig,
 		sessionParserConfig,
-		storeConfig,
-		serviceConfig,
 	)
-
-	michi, err := server.New(serverConfig)
 	if err != nil {
 		log.Fatalf("Failed to initialize server: %v", err)
 	}
 
-	michiCli := cli.New(michi)
-	if err := michiCli.Run(os.Args); err != nil {
+	app := cli.New(michi)
+	if err := app.Run(os.Args); err != nil {
 		fmt.Printf("%s●%s %v\n", internal.ColorRed, internal.ColorReset, err)
 	}
 }

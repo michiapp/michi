@@ -1,20 +1,21 @@
 package shortcuts
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func delete(service service.ShortcutServiceIface) *v2.Command {
+func delete(ctx context.Context, service *service.ShortcutService) *v2.Command {
 	return &v2.Command{
-		Name:  "delete",
-		Usage: "delete a shortcut",
+		Name:    "delete",
+		Usage:   "delete a shortcut",
 		Aliases: []string{"d"},
 		Action: func(c *v2.Context) error {
 
-			shortcuts, err := service.GetAll()
+			shortcuts, err := service.GetAll(ctx)
 
 			if err != nil {
 				return err
@@ -27,7 +28,7 @@ func delete(service service.ShortcutServiceIface) *v2.Command {
 				return nil
 			}
 
-			err = service.Delete(selected.ID)
+			err = service.DeleteFromAlias(ctx, selected.Alias)
 
 			if err != nil {
 				return err

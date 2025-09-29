@@ -1,28 +1,29 @@
 package shortcuts
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func Root(service service.ShortcutServiceIface) *v2.Command {
+func Root(ctx context.Context, service *service.ShortcutService) *v2.Command {
 	return &v2.Command{
 		Name:    "shortcuts",
 		Usage:   "to manage shortcuts",
 		Aliases: []string{"sc"},
 		Subcommands: []*v2.Command{
-			list(service),
-			add(service),
-			delete(service),
+			list(ctx, service),
+			add(ctx, service),
+			delete(ctx, service),
 		},
 	}
 }
 
-func fzf(shortcuts []models.Shortcut, prompt string) *models.Shortcut {
+func fzf(shortcuts []sqlc.Shortcut, prompt string) *sqlc.Shortcut {
 	index, err := fuzzy.FindMulti(
 		shortcuts,
 		func(i int) string {
@@ -36,7 +37,7 @@ func fzf(shortcuts []models.Shortcut, prompt string) *models.Shortcut {
 			}
 			return fmt.Sprintf("Alias: %s \nURL: (%s) \nCreated At: %s",
 				shortcuts[i].Alias,
-				shortcuts[i].URL,
+				shortcuts[i].Url,
 				shortcuts[i].CreatedAt,
 			)
 		}))

@@ -3,7 +3,6 @@ package history
 import (
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
 	"github.com/atotto/clipboard"
 	v2 "github.com/urfave/cli/v2"
@@ -21,8 +20,8 @@ func list(service service.HistoryServiceIface) *v2.Command {
 	}
 
 	return &v2.Command{
-		Name:  "list",
-		Usage: "list history",
+		Name:    "list",
+		Usage:   "list history",
 		Aliases: []string{"l"},
 		Flags: []v2.Flag{
 			allFlag,

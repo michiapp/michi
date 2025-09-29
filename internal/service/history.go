@@ -1,39 +1,37 @@
 package service
 
 import (
-	"github.com/OrbitalJin/michi/internal/models"
-	"github.com/OrbitalJin/michi/internal/repository"
+	"context"
+
+	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
-type HistoryServiceIface interface {
-	Insert(entry *models.SearchHistoryEvent) error
-	GetRecentHistory(limit int) ([]models.SearchHistoryEvent, error)
-	GetAllHistory() ([]models.SearchHistoryEvent, error)
-	DeleteEntry(id int) error
-}
-
 type HistoryService struct {
-	repo repository.HistoryRepoIface
+	q *sqlc.Queries
 }
 
-func NewHistoryService(repo repository.HistoryRepoIface) *HistoryService {
+func NewHistoryService(q *sqlc.Queries) *HistoryService {
 	return &HistoryService{
-		repo: repo,
+		q: q,
 	}
 }
 
-func (service *HistoryService) Insert(entry *models.SearchHistoryEvent) error {
-	return service.repo.Insert(entry)
+func (service *HistoryService) Insert(ctx context.Context, entry sqlc.History) error {
+	return service.q.InsertHistoryEntry(ctx, sqlc.InsertHistoryEntryParams{
+		Query:       entry.Query,
+		ProviderID:  entry.ProviderID,
+		ProviderTag: entry.ProviderTag,
+	})
 }
 
-func (service *HistoryService) GetRecentHistory(limit int) ([]models.SearchHistoryEvent, error) {
-	return service.repo.GetRecentHistory(limit)
+func (service *HistoryService) GetRecentHistory(ctx context.Context, limit int64) ([]sqlc.History, error) {
+	return service.q.GetRecentHistory(ctx, limit)
 }
 
-func (service *HistoryService) GetAllHistory() ([]models.SearchHistoryEvent, error) {
-	return service.repo.GetAllHistory()
+func (service *HistoryService) GetAllHistory(ctx context.Context) ([]sqlc.History, error) {
+	return service.q.ListHistory(ctx)
 }
 
-func (service *HistoryService) DeleteEntry(id int) error {
-	return service.repo.DeleteEntry(id)
+func (service *HistoryService) DeleteEntry(ctx context.Context, id int64) error {
+	return service.q.DeleteHistoryEntry(ctx, id)
 }

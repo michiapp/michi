@@ -3,7 +3,6 @@ package history
 import (
 	"fmt"
 
-	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	v2 "github.com/urfave/cli/v2"

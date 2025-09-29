@@ -1,51 +1,46 @@
 package service
 
 import (
+	"context"
+
 	"github.com/OrbitalJin/michi/internal/cache"
-	"github.com/OrbitalJin/michi/internal/models"
-	"github.com/OrbitalJin/michi/internal/repository"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
-type ShortcutServiceIface interface {
-	Insert(shortcut *models.Shortcut) error
-	GetFromAlias(alias string) (*models.Shortcut, error)
-	GetAll() ([]models.Shortcut, error)
-	Delete(id int) error
-	DeleteFromAlias(alias string) error
-}
-
 type ShortcutService struct {
-	repo  repository.ShortcutsRepoIface
-	cache *cache.Cache[string, *models.Shortcut]
+	q     *sqlc.Queries
+	cache *cache.Cache[string, sqlc.Shortcut]
 }
 
-func NewShortcutService(repo repository.ShortcutsRepoIface) *ShortcutService {
+func NewShortcutService(q *sqlc.Queries) *ShortcutService {
 	return &ShortcutService{
-		repo:  repo,
-		cache: cache.New[string, *models.Shortcut](),
+		q:     q,
+		cache: cache.New[string, sqlc.Shortcut](),
 	}
 }
 
-func (service *ShortcutService) Insert(shortcut *models.Shortcut) error {
-	if err := service.repo.Insert(shortcut); err != nil {
+func (service *ShortcutService) Insert(ctx context.Context, params sqlc.InsertShortcutParams) error {
+	sc, err := service.q.InsertShortcut(ctx, params)
+
+	if err != nil {
 		return err
 	}
 
-	service.cache.Store(shortcut.Alias, shortcut)
+	service.cache.Store(sc.Alias, sc)
 	return nil
 }
 
-func (service *ShortcutService) GetFromAlias(alias string) (*models.Shortcut, error) {
+func (service *ShortcutService) GetFromAlias(ctx context.Context, alias string) (sqlc.Shortcut, error) {
 	shortcut, ok := service.cache.Load(alias)
 
 	if ok {
 		return shortcut, nil
 	}
 
-	shortcut, err := service.repo.GetFromAlias(alias)
+	shortcut, err := service.q.GetShortcutByAlias(ctx, alias)
 
 	if err != nil {
-		return nil, err
+		return sqlc.Shortcut{}, err
 	}
 
 	service.cache.Store(alias, shortcut)
@@ -53,14 +48,14 @@ func (service *ShortcutService) GetFromAlias(alias string) (*models.Shortcut, er
 	return shortcut, nil
 }
 
-func (service *ShortcutService) GetAll() ([]models.Shortcut, error) {
-	return service.repo.GetAll()
+func (service *ShortcutService) GetAll(ctx context.Context) ([]sqlc.Shortcut, error) {
+	return service.q.ListShortcuts(ctx)
 }
 
-func (service *ShortcutService) Delete(id int) error {
-	return service.repo.Delete(id)
+func (service *ShortcutService) Delete(ctx context.Context, id int64) error {
+	return service.q.DeleteShortcut(ctx, id)
 }
 
-func (service *ShortcutService) DeleteFromAlias(alias string) error {
-	return service.repo.DeleteFromAlias(alias)
+func (service *ShortcutService) DeleteFromAlias(ctx context.Context, alias string) error {
+	return service.q.DeleteShortcutFromAlias(ctx, alias)
 }

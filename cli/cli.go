@@ -1,10 +1,12 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/OrbitalJin/michi/cli/bangs"
-	"github.com/OrbitalJin/michi/cli/history"
+	// "github.com/OrbitalJin/michi/cli/history"
+	// "github.com/OrbitalJin/michi/cli/sessions"
 	"github.com/OrbitalJin/michi/cli/lifecycle"
-	"github.com/OrbitalJin/michi/cli/sessions"
 	"github.com/OrbitalJin/michi/cli/shortcuts"
 	"github.com/OrbitalJin/michi/internal"
 	"github.com/OrbitalJin/michi/internal/server"
@@ -19,6 +21,7 @@ type Cli struct {
 
 func New(server *server.Server) *v2.App {
 	serverManager := manager.NewServerManager(server)
+	ctx := context.Background()
 	return &v2.App{
 		Name:                 "michi",
 		Usage:                "A super-charged search engine multiplexer 🚀",
@@ -28,10 +31,10 @@ func New(server *server.Server) *v2.App {
 			lifecycle.Serve(serverManager),
 			lifecycle.Stop(serverManager),
 			lifecycle.Doctor(serverManager),
-			shortcuts.Root(server.GetServices().GetShortcutService()),
-			sessions.Root(server.GetServices().GetSessionService()),
-			history.Root(server.GetServices().GetHistoryService()),
-			bangs.Root(server.GetServices().GetProvidersService()),
+			shortcuts.Root(ctx, server.GetServices().GetShortcutService()),
+			bangs.Root(ctx, server.GetServices().GetProvidersService()),
+			// sessions.Root(server.GetServices().GetSessionService()),
+			// history.Root(server.GetServices().GetHistoryService()),
 		},
 	}
 }
