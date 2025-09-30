@@ -1,14 +1,16 @@
 package history
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	"github.com/atotto/clipboard"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func list(service service.HistoryServiceIface) *v2.Command {
+func list(ctx context.Context, service *service.HistoryService) *v2.Command {
 	allFlag := &v2.BoolFlag{
 		Name:  "all",
 		Usage: "list all history",
@@ -27,17 +29,17 @@ func list(service service.HistoryServiceIface) *v2.Command {
 			allFlag,
 			limitFlag,
 		},
-		Action: func(ctx *v2.Context) error {
-			var history []models.SearchHistoryEvent
+		Action: func(c *v2.Context) error {
+			var history []sqlc.History
 			var err error = nil
 
-			all := ctx.Bool("all")
-			limit := ctx.Int("limit")
+			all := c.Bool("all")
+			limit := c.Int("limit")
 
 			if all || limit < 1 {
-				history, err = service.GetAllHistory()
+				history, err = service.GetAllHistory(ctx)
 			} else {
-				history, err = service.GetRecentHistory(limit)
+				history, err = service.GetRecentHistory(ctx, int64(limit))
 			}
 
 			if err != nil {

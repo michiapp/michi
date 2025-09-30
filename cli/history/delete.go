@@ -1,13 +1,14 @@
 package history
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func delete(service service.HistoryServiceIface) *v2.Command {
+func delete(ctx context.Context, service *service.HistoryService) *v2.Command {
 	lastFlag := &v2.IntFlag{
 		Name:  "last",
 		Usage: "purge the last (n) entries",
@@ -20,25 +21,25 @@ func delete(service service.HistoryServiceIface) *v2.Command {
 		Flags: []v2.Flag{
 			lastFlag,
 		},
-		Action: func(ctx *v2.Context) error {
-			last := ctx.Int("last")
+		Action: func(c *v2.Context) error {
+			last := c.Int("last")
 
 			if last > 0 {
-				history, err := service.GetRecentHistory(last)
+				history, err := service.GetRecentHistory(ctx, int64(last))
 
 				if err != nil {
 					return err
 				}
 
 				for _, entry := range history {
-					service.DeleteEntry(entry.ID)
+					service.DeleteEntry(ctx, entry.ID)
 				}
 
 				fmt.Printf("Last (%d) have been successfully purged.\n", last)
 				return nil
 			}
 
-			history, err := service.GetAllHistory()
+			history, err := service.GetAllHistory(ctx)
 
 			if err != nil {
 				return err
@@ -51,7 +52,7 @@ func delete(service service.HistoryServiceIface) *v2.Command {
 				return nil
 			}
 
-			err = service.DeleteEntry(selected.ID)
+			err = service.DeleteEntry(ctx, selected.ID)
 
 			if err != nil {
 				return err

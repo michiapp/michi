@@ -8,7 +8,7 @@ INSERT INTO history (
 
 -- name: GetRecentHistory :many
 SELECT * FROM history
-ORDER BY timestamp DESC
+ORDER BY timestamp ASC 
 LIMIT ?;
 
 -- name: ListHistory :many

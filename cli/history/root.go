@@ -1,26 +1,28 @@
 package history
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func Root(service service.HistoryServiceIface) *v2.Command {
+func Root(ctx context.Context, service *service.HistoryService) *v2.Command {
 	return &v2.Command{
 		Name:    "history",
 		Usage:   "to manage history",
 		Aliases: []string{"hs"},
 		Subcommands: []*v2.Command{
-			list(service),
-			delete(service),
+			list(ctx, service),
+			delete(ctx, service),
 		},
 	}
 }
 
-func fzf(history []models.SearchHistoryEvent, prompt string) *models.SearchHistoryEvent {
+func fzf(history []sqlc.History, prompt string) *sqlc.History {
 	index, err := fuzzy.FindMulti(
 		history,
 		func(i int) string {

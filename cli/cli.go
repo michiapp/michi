@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/OrbitalJin/michi/cli/bangs"
-	// "github.com/OrbitalJin/michi/cli/history"
+	"github.com/OrbitalJin/michi/cli/history"
 	// "github.com/OrbitalJin/michi/cli/sessions"
 	"github.com/OrbitalJin/michi/cli/lifecycle"
 	"github.com/OrbitalJin/michi/cli/shortcuts"
@@ -32,9 +32,9 @@ func New(server *server.Server) *v2.App {
 			lifecycle.Stop(serverManager),
 			lifecycle.Doctor(serverManager),
 			shortcuts.Root(ctx, server.GetServices().GetShortcutService()),
+			history.Root(ctx, server.GetServices().GetHistoryService()),
 			bangs.Root(ctx, server.GetServices().GetProvidersService()),
 			// sessions.Root(server.GetServices().GetSessionService()),
-			// history.Root(server.GetServices().GetHistoryService()),
 		},
 	}
 }

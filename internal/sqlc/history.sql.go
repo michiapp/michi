@@ -21,7 +21,7 @@ func (q *Queries) DeleteHistoryEntry(ctx context.Context, id int64) error {
 
 const getRecentHistory = `-- name: GetRecentHistory :many
 SELECT id, "query", provider_id, provider_tag, timestamp FROM history
-ORDER BY timestamp DESC
+ORDER BY timestamp ASC 
 LIMIT ?
 `
 
