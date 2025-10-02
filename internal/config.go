@@ -25,7 +25,7 @@ type UserConfig struct {
 	} `yaml:"parser"`
 
 	Service struct {
-		KeepTrack       bool   `yaml:"keep_track"`
+		History         bool   `yaml:"history"`
 		DefaultProvider string `yaml:"default_provider"`
 	} `yaml:"service"`
 }
@@ -52,7 +52,7 @@ func NewDefaultAppConfig() *Config {
 	cfg.Parser.BangPrefix = "!"
 	cfg.Parser.ShortcutPrefix = "@"
 	cfg.Parser.SessionPrefix = "#"
-	cfg.Service.KeepTrack = true
+	cfg.Service.History = true
 	cfg.Service.DefaultProvider = "g"
 
 	cfg.PidFile = filepath.Join(homeDir, ".michi", "michi.proc.pid")

@@ -15,8 +15,8 @@ import (
 
 type Server struct {
 	queryParser parser.QueryParserIface
-	handler     handler.HandlerIface
 	router      router.RouterIface
+	handler     *handler.Handler
 	services    *service.Services
 	queries     *sqlc.Queries
 	config      *internal.Config
@@ -50,7 +50,7 @@ func New(
 	seshsvc := service.NewSessionService(q)
 	services := service.NewServices(psvc, hsvc, seshsvc, scsvc)
 
-	handler := handler.NewHandler(qp, services, "q")
+	handler := handler.NewHandler(config, qp, services, "q")
 
 	router, err := router.NewRouter(handler)
 

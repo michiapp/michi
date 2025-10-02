@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	// "io"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,7 +24,7 @@ var embedMigrations embed.FS
 
 func migrate(db *sql.DB) error {
 	goose.SetBaseFS(embedMigrations)
-	// goose.SetLogger(log.New(io.Discard, "", 0))
+	goose.SetLogger(log.New(io.Discard, "", 0))
 	goose.SetDialect(string(goose.DialectSQLite3))
 
 	return goose.Up(db, "migrations")
@@ -63,7 +63,7 @@ func main() {
 	bangParserConfig := parser.NewConfig(config.Parser.BangPrefix)
 	shortcutParserConfig := parser.NewConfig(config.Parser.ShortcutPrefix)
 	sessionParserConfig := parser.NewConfig(config.Parser.SessionPrefix)
-	serviceConfig := service.NewConfig(config.Service.KeepTrack, config.Service.DefaultProvider)
+	serviceConfig := service.NewConfig(config.Service.History, config.Service.DefaultProvider)
 
 	conn, err := sql.Open("sqlite", config.DBPath)
 	if err != nil {

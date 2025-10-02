@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/OrbitalJin/michi/internal"
 	"github.com/OrbitalJin/michi/internal/parser"
 	"github.com/OrbitalJin/michi/internal/service"
 	"github.com/OrbitalJin/michi/internal/sqlc"
@@ -10,29 +12,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HandlerIface interface {
-	Root(ctx *gin.Context)
-	completeSearchRequest(ctx *gin.Context, redirectURL string, result *parser.Result, provider sqlc.SearchProvider)
-	handleBang(ctx *gin.Context, action *parser.QueryAction)
-	handleShortcut(ctx *gin.Context, action *parser.QueryAction)
-	handleSession(ctx *gin.Context, action *parser.QueryAction)
-	handleDefaultSearch(ctx *gin.Context, action *parser.QueryAction)
-}
-
 type Handler struct {
+	QueryParam  string
 	queryParser parser.QueryParserIface
 	services    *service.Services
-	QueryParam  string
+	config      *internal.Config
 }
 
 func NewHandler(
+	config *internal.Config,
 	qp parser.QueryParserIface,
 	services *service.Services,
 	queryParam string,
-
 ) *Handler {
 
 	return &Handler{
+		config:      config,
 		queryParser: qp,
 		services:    services,
 		QueryParam:  queryParam,
@@ -74,5 +69,10 @@ func (h *Handler) completeSearchRequest(
 ) {
 
 	ctx.Redirect(http.StatusFound, redirectURL)
-	go h.logSearchHistoryAsync(ctx, result, provider)
+
+	fmt.Println("foo bar")
+	fmt.Println(h.config.Service.History)
+	if h.config.Service.History {
+		go h.logSearchHistoryAsync(ctx, result, provider)
+	}
 }
