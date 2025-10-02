@@ -10,8 +10,7 @@ import (
 )
 
 const deleteProvider = `-- name: DeleteProvider :exec
-DELETE FROM search_providers
-WHERE id = ?
+DELETE FROM search_providers WHERE id = ?
 `
 
 func (q *Queries) DeleteProvider(ctx context.Context, id int64) error {
@@ -20,8 +19,7 @@ func (q *Queries) DeleteProvider(ctx context.Context, id int64) error {
 }
 
 const getProviderByTag = `-- name: GetProviderByTag :one
-SELECT id, category, domain, rank, site_name, subcategory, tag, url FROM search_providers
-WHERE tag = ?
+SELECT id, category, domain, rank, site_name, subcategory, tag, url FROM search_providers WHERE tag = ?
 `
 
 func (q *Queries) GetProviderByTag(ctx context.Context, tag string) (SearchProvider, error) {
@@ -42,7 +40,13 @@ func (q *Queries) GetProviderByTag(ctx context.Context, tag string) (SearchProvi
 
 const insertProvider = `-- name: InsertProvider :exec
 INSERT INTO search_providers (
-    tag, url, category, domain, rank, site_name, subcategory
+    tag, 
+    url, 
+    category, 
+    domain, 
+    rank, 
+    site_name, 
+    subcategory
 ) VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
@@ -70,8 +74,7 @@ func (q *Queries) InsertProvider(ctx context.Context, arg InsertProviderParams) 
 }
 
 const listProviders = `-- name: ListProviders :many
-SELECT id, category, domain, rank, site_name, subcategory, tag, url FROM search_providers
-ORDER BY rank DESC
+SELECT id, category, domain, rank, site_name, subcategory, tag, url FROM search_providers ORDER BY rank DESC
 `
 
 func (q *Queries) ListProviders(ctx context.Context) ([]SearchProvider, error) {

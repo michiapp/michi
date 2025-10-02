@@ -1,6 +1,7 @@
 package sessions
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
@@ -8,13 +9,13 @@ import (
 	v2 "github.com/urfave/cli/v2"
 )
 
-func list(service service.SessionServiceIface) *v2.Command {
+func list(ctx context.Context, service *service.SessionService) *v2.Command {
 	return &v2.Command{
 		Name:  "list",
 		Usage: "list sessions",
 		Aliases: []string{"l"},
-		Action: func(ctx *v2.Context) error {
-			sessions, err := service.GetAll()
+		Action: func(_ *v2.Context) error {
+			sessions, err := service.GetSessionsWithUrls(ctx)
 			if err != nil {
 				return err
 			}

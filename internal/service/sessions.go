@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/OrbitalJin/michi/internal/cache"
+	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/sqlc"
 )
 
@@ -27,9 +28,64 @@ func (service *SessionService) Insert(ctx context.Context, alias string, urls []
 		return err
 	}
 
-	service.cache.Store(session.Alias, session)
+	for _, url := range urls {
+		_, err := service.q.AddSessionUrl(ctx, sqlc.AddSessionUrlParams{
+			SessionID: session.ID,
+			Url: url,
+		})
+		if err != nil {
+			return err
+		}
+	}
 
+	service.cache.Store(session.Alias, session)
 	return nil
+}
+
+func (service *SessionService) GetSessionWithUrls(
+	ctx context.Context, 
+	alias string,
+) (models.SessionWithUrls, error) {
+  session, err := service.GetFromAlias(ctx, alias)
+	if err != nil {
+		return models.SessionWithUrls{}, err
+	}
+
+	urls, err := service.q.ListSessionUrls(ctx, session.ID)
+
+	if err != nil {
+    return models.SessionWithUrls{}, err
+	}
+
+	return models.SessionWithUrls{
+  	Session: session,
+		Urls: urls,
+	}, nil
+}
+
+func (service *SessionService) GetSessionsWithUrls(ctx context.Context) ([]models.SessionWithUrls, error) {
+  sessions, err := service.GetAll(ctx)
+
+  if err != nil {
+    return nil, err
+  }
+
+  var sessionsWithUrls []models.SessionWithUrls
+
+  for _, session := range sessions {
+    urls, err := service.q.ListSessionUrls(ctx, session.ID)
+
+    if err != nil {
+      return nil, err
+    }
+
+    sessionsWithUrls = append(sessionsWithUrls, models.SessionWithUrls{
+      Session: session,
+      Urls: urls,
+    })
+  }
+
+  return sessionsWithUrls, nil
 }
 
 func (service *SessionService) GetFromAlias(ctx context.Context, alias string) (sqlc.Session, error) {

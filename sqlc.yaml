@@ -7,7 +7,7 @@ sql:
       go:
         package: "sqlc"
         out: "internal/sqlc"
-        emit_json_tags: true      # generates json tags in Go structs
-        emit_db_tags: true        # generates db tags that match columns
-        emit_empty_slices: true   # safer slices (instead of nil)
-        emit_pointers_for_null_types: true  # makes nullable fields *string/*int instead of sql.Null*
+        emit_json_tags: true
+        emit_db_tags: true
+        emit_empty_slices: true
+        emit_pointers_for_null_types: true

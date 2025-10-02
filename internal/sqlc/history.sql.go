@@ -10,8 +10,7 @@ import (
 )
 
 const deleteHistoryEntry = `-- name: DeleteHistoryEntry :exec
-DELETE FROM history
-WHERE id = ?
+DELETE FROM history WHERE id = ?
 `
 
 func (q *Queries) DeleteHistoryEntry(ctx context.Context, id int64) error {
@@ -20,9 +19,7 @@ func (q *Queries) DeleteHistoryEntry(ctx context.Context, id int64) error {
 }
 
 const getRecentHistory = `-- name: GetRecentHistory :many
-SELECT id, "query", provider_id, provider_tag, timestamp FROM history
-ORDER BY timestamp ASC 
-LIMIT ?
+SELECT id, "query", provider_id, provider_tag, timestamp FROM history ORDER BY timestamp ASC LIMIT ?
 `
 
 func (q *Queries) GetRecentHistory(ctx context.Context, limit int64) ([]History, error) {
@@ -55,11 +52,7 @@ func (q *Queries) GetRecentHistory(ctx context.Context, limit int64) ([]History,
 }
 
 const insertHistoryEntry = `-- name: InsertHistoryEntry :exec
-INSERT INTO history (
-  query,
-  provider_id,
-  provider_tag
-) VALUES (?, ?, ?)
+INSERT INTO history (query, provider_id, provider_tag) VALUES (?, ?, ?)
 `
 
 type InsertHistoryEntryParams struct {

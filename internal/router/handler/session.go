@@ -38,25 +38,42 @@ func (h *Handler) handleSession(ctx *gin.Context, action *parser.QueryAction) {
 		return
 	}
 
-	// urls := session.URLs
+	session, err := h.services.GetSessionService().GetSessionWithUrls(ctx, alias)
 
-	// if len(urls) == 0 {
-	// 	respondWithError(
-	// 		ctx,
-	// 		http.StatusInternalServerError,
-	// 		"handleSession: Session for alias '%s' has no URLs",
-	// 		"Failed to retrieve session. Please try again later.",
-	// 		nil,
-	// 		alias,
-	// 	)
-	// 	return
-	// }
+	if err != nil {
+    respondWithError(
+      ctx,
+      http.StatusInternalServerError,
+      "handleSession: Error retrieving session for alias '%s': %v",
+      "Failed to retrieve session. Please try again later.",
+      err,
+      alias,
+    )
+    return
+	}
 
-	// ctx.HTML(
-	// 	http.StatusOK,
-	// 	"session_open.html",
-	// 	gin.H{
-	// 		"URLs": urls,
-	// 	},
-	// )
+	var urls []string
+	for _, u := range session.Urls {
+		urls = append(urls, u.Url)
+	}
+
+	if len(urls) == 0 {
+		respondWithError(
+			ctx,
+			http.StatusInternalServerError,
+			"handleSession: Session for alias '%s' has no URLs",
+			"Failed to retrieve session. Please try again later.",
+			nil,
+			alias,
+		)
+		return
+	}
+
+	ctx.HTML(
+		http.StatusOK,
+		"session_open.html",
+		gin.H{
+			"URLs": urls,
+		},
+	)
 }

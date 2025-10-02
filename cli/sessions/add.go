@@ -1,13 +1,14 @@
 package sessions
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/OrbitalJin/michi/internal/service"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func add(service service.SessionServiceIface) *v2.Command {
+func add(ctx context.Context, service *service.SessionService) *v2.Command {
 	aliasFlag := &v2.StringFlag{
 		Name:     "alias",
 		Usage:    "alias for the session",
@@ -32,10 +33,7 @@ func add(service service.SessionServiceIface) *v2.Command {
 			alias := c.String("alias")
 			urls := c.StringSlice("url")
 
-			err := service.Insert(&models.Session{
-				Alias: alias,
-				URLs:  urls,
-			})
+			err := service.Insert(ctx, alias, urls)
 
 			if err != nil {
 				return err

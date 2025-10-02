@@ -1,32 +1,34 @@
 package sessions
 
 import (
+	"context"
 	"fmt"
-	"strings"
 
+	"github.com/OrbitalJin/michi/internal/models"
 	"github.com/OrbitalJin/michi/internal/service"
+	"github.com/OrbitalJin/michi/internal/sqlc"
 	fuzzy "github.com/ktr0731/go-fuzzyfinder"
 	v2 "github.com/urfave/cli/v2"
 )
 
-func Root(service service.SessionServiceIface) *v2.Command {
+func Root(ctx context.Context, service *service.SessionService) *v2.Command {
 	return &v2.Command{
 		Name:    "sessions",
 		Usage:   "Manage sessions",
 		Aliases: []string{"sesh"},
 		Subcommands: []*v2.Command{
-			list(service),
-			add(service),
-			delete(service),
+			list(ctx, service),
+			add(ctx, service),
+			delete(ctx, service),
 		},
 	}
 }
 
-func fzf(sessions []models.Session, prompt string) *models.Session {
+func fzf(sessions []models.SessionWithUrls, prompt string) *sqlc.Session {
 	index, err := fuzzy.FindMulti(
 		sessions,
 		func(i int) string {
-			return sessions[i].Alias
+			return sessions[i].Session.Alias
 
 		},
 		fuzzy.WithHeader("Sessions - "+prompt),
@@ -34,11 +36,14 @@ func fzf(sessions []models.Session, prompt string) *models.Session {
 			if i == -1 {
 				return ""
 			}
-			urlsStr := strings.Join(sessions[i].URLs, "\n\t")
+			urlsStr := ""
+			for _, url := range sessions[i].Urls {
+				urlsStr += url.Url + "\n"
+			}
 			return fmt.Sprintf("Alias: %s \nURLs:\n%s \nCreated At: %s",
-				sessions[i].Alias,
+				sessions[i].Session.Alias,
 				urlsStr,
-				sessions[i].CreatedAt,
+				sessions[i].Session.CreatedAt,
 			)
 		}))
 
@@ -47,7 +52,7 @@ func fzf(sessions []models.Session, prompt string) *models.Session {
 	}
 
 	if len(index) > 0 {
-		return &sessions[index[0]]
+		return &sessions[index[0]].Session
 	}
 
 	return nil

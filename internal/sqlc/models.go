@@ -33,6 +33,13 @@ type Session struct {
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
 
+type SessionUrl struct {
+	ID        int64     `db:"id" json:"id"`
+	SessionID int64     `db:"session_id" json:"session_id"`
+	Url       string    `db:"url" json:"url"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
 type Shortcut struct {
 	ID        int64     `db:"id" json:"id"`
 	Alias     string    `db:"alias" json:"alias"`

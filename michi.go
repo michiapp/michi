@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"io"
+	// "io"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,7 +24,7 @@ var embedMigrations embed.FS
 
 func migrate(db *sql.DB) error {
 	goose.SetBaseFS(embedMigrations)
-	goose.SetLogger(log.New(io.Discard, "", 0))
+	// goose.SetLogger(log.New(io.Discard, "", 0))
 	goose.SetDialect(string(goose.DialectSQLite3))
 
 	return goose.Up(db, "migrations")
