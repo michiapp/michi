@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE IF NOT EXISTS search_providers (
-  id         INTEGER PRIMARY KEY,                 
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,                 
   category   TEXT    NOT NULL DEFAULT '',
   domain     TEXT    NOT NULL DEFAULT '',
   rank       INTEGER NOT NULL DEFAULT 0,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS search_providers (
 );
 
 CREATE TABLE IF NOT EXISTS history (
-  id           INTEGER PRIMARY KEY,
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
   query        TEXT NOT NULL DEFAULT '',
   provider_id  INT  NOT NULL DEFAULT 0,
   provider_tag TEXT NOT NULL DEFAULT '',
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS history (
 );
 
 CREATE TABLE IF NOT EXISTS shortcuts (
-  id         INTEGER  PRIMARY KEY,
+  id         INTEGER  PRIMARY KEY AUTOINCREMENT,
   alias      TEXT NOT NULL UNIQUE,
   url        TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS shortcuts (
 
 
 CREATE TABLE IF NOT EXISTS sessions (
-  id         INTEGER PRIMARY KEY,
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
   alias      TEXT NOT NULL UNIQUE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

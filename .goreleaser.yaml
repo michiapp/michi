@@ -6,7 +6,7 @@ before:
 
 builds:
   - id: michi
-    main: ./cmd/michi.go
+    main: ./michi.go
     binary: michi
     goos:
       - linux

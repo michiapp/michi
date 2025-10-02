@@ -67,7 +67,7 @@ func (q *Queries) InsertHistoryEntry(ctx context.Context, arg InsertHistoryEntry
 }
 
 const listHistory = `-- name: ListHistory :many
-SELECT id, "query", provider_id, provider_tag, timestamp FROM history
+SELECT id, "query", provider_id, provider_tag, timestamp FROM history ORDER BY timestamp DESC
 `
 
 func (q *Queries) ListHistory(ctx context.Context) ([]History, error) {
