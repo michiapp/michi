@@ -118,6 +118,7 @@ curl -fsSL https://michi.run/uninstall.sh | sh
 - [ ] Firewall rules
 - [ ] configurable redirects to avoid certain websites
 - [ ] list down average reponse time in help command
+- [x] Autofix stale state
 - [x] Migrate to sqlc
 - [x] Fix db changes not reflecting immediately
 - [x] add shorthands for the cli commands

@@ -30,7 +30,7 @@ func New(server *server.Server) *v2.App {
 		Commands: []*v2.Command{
 			lifecycle.Serve(serverManager),
 			lifecycle.Stop(serverManager),
-			lifecycle.Doctor(serverManager),
+			lifecycle.Doctor(serverManager, false),
 			shortcuts.Root(ctx, server.GetServices().GetShortcutService()),
 			history.Root(ctx, server.GetServices().GetHistoryService()),
 			bangs.Root(ctx, server.GetServices().GetProvidersService()),

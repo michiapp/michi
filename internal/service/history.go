@@ -16,12 +16,8 @@ func NewHistoryService(q *sqlc.Queries) *HistoryService {
 	}
 }
 
-func (service *HistoryService) Insert(ctx context.Context, entry sqlc.History) error {
-	return service.q.InsertHistoryEntry(ctx, sqlc.InsertHistoryEntryParams{
-		Query:       entry.Query,
-		ProviderID:  entry.ProviderID,
-		ProviderTag: entry.ProviderTag,
-	})
+func (service *HistoryService) Insert(ctx context.Context, params sqlc.InsertHistoryEntryParams) error {
+	return service.q.InsertHistoryEntry(ctx, params)
 }
 
 func (service *HistoryService) GetRecentHistory(ctx context.Context, limit int64) ([]sqlc.History, error) {

@@ -19,16 +19,16 @@ func (h *Handler) logSearchHistoryAsync(ctx context.Context, result *parser.Resu
 		return
 	}
 
-	entry := sqlc.History{
+	params := sqlc.InsertHistoryEntryParams{
 		Query:       result.Query,
 		ProviderID:  provider.ID,
 		ProviderTag: provider.Tag,
 	}
 
-	if err := h.services.GetHistoryService().Insert(ctx, entry); err != nil {
+	if err := h.services.GetHistoryService().Insert(ctx, params); err != nil {
 		log.Printf(
 			"failed to insert search history entry for query '%s': %v",
-			entry.Query,
+			params.Query,
 			fmt.Errorf("insertion error: %w", err),
 		)
 	}

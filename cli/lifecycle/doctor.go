@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func Doctor(sm *manager.ServerManager) *cli.Command {
+func Doctor(sm *manager.ServerManager, bypass bool) *cli.Command {
 	return &cli.Command{
 		Name:  "doctor",
 		Usage: "check michi status",
@@ -40,7 +40,7 @@ func Doctor(sm *manager.ServerManager) *cli.Command {
 			fmt.Printf("%s●%s Stale PID file found (PID: %d not running)\n",
 				internal.ColorYellow, internal.ColorReset, pid)
 
-			if fix {
+			if fix || bypass {
 				fmt.Printf("%s●%s Removing stale PID file\n",
 					internal.ColorRed, internal.ColorReset)
 				if err := sm.RemovePIDFile(); err != nil {

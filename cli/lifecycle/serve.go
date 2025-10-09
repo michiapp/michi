@@ -11,16 +11,23 @@ func Serve(sm *manager.ServerManager) *cli.Command {
 		Usage: "serve michi",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name: "detach",
+				Name:  "detach",
 				Usage: "run the server in background",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-
 			if ctx.Bool("detach") {
+				err := sm.Daemonize()
+				if err != nil {
+					Doctor(sm, true).Action(ctx)
+				}
 				return sm.Daemonize()
 			}
 
+			err := sm.RunForeground()
+			if err != nil {
+				Doctor(sm, true).Action(ctx)
+			}
 			return sm.RunForeground()
 		},
 	}
