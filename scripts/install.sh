@@ -28,8 +28,12 @@ VERSION="${VERSION:-latest}"
 # Fetch latest version if needed
 if [ "$VERSION" = "latest" ]; then
     echo -e "${CYAN}🔍 Fetching latest release version...${RESET}"
+    # Use grep -Eo for extended regex and -o for only matching part,
+    # then cut to extract the actual version number.
+    # This is portable to both macOS (BSD grep) and Linux (GNU grep).
     VERSION=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
-        | grep -oP '"tag_name": "\K(.*)(?=")')
+        | grep -Eo '"tag_name": "[^"]+"' \
+        | cut -d '"' -f 4)
 fi
 
 echo -e "${CYAN}⬇️ Installing $BINARY $VERSION for $OS/$ARCH...${RESET}"
